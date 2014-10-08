@@ -685,11 +685,15 @@ class C_DataMapper_Driver_Base extends C_Component
 	function lookup_columns()
 	{
 		global $wpdb;
-		$this->_table_columns = array();
-		$sql = "SHOW COLUMNS FROM `{$this->get_table_name()}`";
-		foreach ($wpdb->get_results($sql) as $row) {
-			$this->_table_columns[] = $row->Field;
-		}
+        $this->_table_columns = get_transient('show_columns_from_' . $this->get_table_name());
+        if (!$this->_table_columns) {
+        	$this->_table_columns = array();
+			$sql = "SHOW COLUMNS FROM `{$this->get_table_name()}`";
+			foreach ($wpdb->get_results($sql) as $row) {
+				$this->_table_columns[] = $row->Field;
+			}
+            set_transient('show_columns_from_' . $this->get_table_name(), $this->_table_columns, 60 * 60 * 24);
+        }
 		return $this->_table_columns;
 	}
 
